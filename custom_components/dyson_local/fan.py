@@ -51,7 +51,7 @@ SUPPORTED_PRESET_MODES = [PRESET_MODE_AUTO]
 
 SPEED_RANGE = (1, 10)
 
-COMMON_FEATURES = FanEntityFeature.OSCILLATE | FanEntityFeature.SET_SPEED | FanEntityFeature.PRESET_MODE
+COMMON_FEATURES = FanEntityFeature.OSCILLATE | FanEntityFeature.SET_SPEED | FanEntityFeature.PRESET_MODE | FanEntityFeature.TURN_OFF | FanEntityFeature.TURN_ON
 
 
 async def async_setup_entry(
