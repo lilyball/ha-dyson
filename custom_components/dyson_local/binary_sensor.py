@@ -5,8 +5,8 @@ from typing import Callable
 from libdyson import Dyson360Eye, Dyson360Heurist, DysonPureHotCoolLink
 
 from homeassistant.components.binary_sensor import (
-    DEVICE_CLASS_BATTERY_CHARGING,
     BinarySensorEntity,
+    BinarySensorDeviceClass,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
@@ -53,7 +53,7 @@ class DysonVacuumBatteryChargingSensor(DysonEntity, BinarySensorEntity):
     @property
     def device_class(self) -> str:
         """Return the device class of the sensor."""
-        return DEVICE_CLASS_BATTERY_CHARGING
+        return BinarySensorDeviceClass.BATTERY_CHARGING
 
     @property
     def sub_name(self) -> str:

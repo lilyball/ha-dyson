@@ -10,11 +10,8 @@ import voluptuous as vol
 from homeassistant.components.fan import (
     DIRECTION_FORWARD,
     DIRECTION_REVERSE,
-    SUPPORT_DIRECTION,
-    SUPPORT_OSCILLATE,
-    SUPPORT_PRESET_MODE,
-    SUPPORT_SET_SPEED,
     FanEntity,
+    FanEntityFeature,
     NotValidPresetModeError,
 )
 from homeassistant.config_entries import ConfigEntry
@@ -54,7 +51,7 @@ SUPPORTED_PRESET_MODES = [PRESET_MODE_AUTO]
 
 SPEED_RANGE = (1, 10)
 
-COMMON_FEATURES = SUPPORT_OSCILLATE | SUPPORT_SET_SPEED | SUPPORT_PRESET_MODE
+COMMON_FEATURES = FanEntityFeature.OSCILLATE | FanEntityFeature.SET_SPEED | FanEntityFeature.PRESET_MODE
 
 
 async def async_setup_entry(
@@ -195,7 +192,7 @@ class DysonPureCoolEntity(DysonFanEntity):
     @property
     def supported_features(self) -> int:
         """Flag supported features."""
-        return COMMON_FEATURES | SUPPORT_DIRECTION
+        return COMMON_FEATURES | FanEntityFeature.DIRECTION
 
     @property
     def current_direction(self) -> str:
@@ -249,7 +246,7 @@ class DysonPureHumidifyCoolEntity(DysonFanEntity):
     @property
     def supported_features(self) -> int:
         """Flag supported features."""
-        return COMMON_FEATURES | SUPPORT_DIRECTION
+        return COMMON_FEATURES | FanEntityFeature.DIRECTION
 
     @property
     def current_direction(self) -> str:

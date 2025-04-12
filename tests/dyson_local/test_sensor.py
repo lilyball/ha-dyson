@@ -23,8 +23,7 @@ from custom_components.dyson_local.sensor import SENSORS
 from homeassistant.const import (
     ATTR_UNIT_OF_MEASUREMENT,
     STATE_OFF,
-    TEMP_CELSIUS,
-    TEMP_FAHRENHEIT,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry
@@ -131,7 +130,7 @@ async def test_fan(hass: HomeAssistant, device: DysonFanDevice):
     assert hass.states.get(f"sensor.{NAME}_humidity").state == "50"
     state = hass.states.get(f"sensor.{NAME}_temperature")
     assert state.state == "6.9"
-    assert state.attributes[ATTR_UNIT_OF_MEASUREMENT] == TEMP_CELSIUS
+    assert state.attributes[ATTR_UNIT_OF_MEASUREMENT] == UnitOfTemperature.CELSIUS
 
     device.humidity = 30
     device.temperature = 300
@@ -140,7 +139,7 @@ async def test_fan(hass: HomeAssistant, device: DysonFanDevice):
     assert hass.states.get(f"sensor.{NAME}_humidity").state == "30"
     state = hass.states.get(f"sensor.{NAME}_temperature")
     assert state.state == "80.3"
-    assert state.attributes[ATTR_UNIT_OF_MEASUREMENT] == TEMP_FAHRENHEIT
+    assert state.attributes[ATTR_UNIT_OF_MEASUREMENT] == UnitOfTemperature.FAHRENHEIT
 
     device.temperature = ENVIRONMENTAL_OFF
     await update_device(hass, device, MessageType.ENVIRONMENTAL)

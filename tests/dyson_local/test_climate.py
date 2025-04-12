@@ -14,7 +14,11 @@ from libdyson.dyson_device import DysonHeatingDevice
 import pytest
 
 from custom_components.dyson_local.climate import HVAC_MODES, SUPPORT_FLAGS
-from homeassistant.components.climate import DOMAIN as CLIMATE_DOMAIN
+from homeassistant.components.climate import DOMAIN as (
+    CLIMATE_DOMAIN,
+    HVACAction,
+    HVACMode,
+)
 from homeassistant.components.climate.const import (
     ATTR_CURRENT_HUMIDITY,
     ATTR_CURRENT_TEMPERATURE,
@@ -25,13 +29,6 @@ from homeassistant.components.climate.const import (
     ATTR_MIN_TEMP,
     ATTR_TARGET_TEMP_HIGH,
     ATTR_TARGET_TEMP_LOW,
-    CURRENT_HVAC_COOL,
-    CURRENT_HVAC_HEAT,
-    CURRENT_HVAC_IDLE,
-    CURRENT_HVAC_OFF,
-    HVAC_MODE_COOL,
-    HVAC_MODE_HEAT,
-    HVAC_MODE_OFF,
     SERVICE_SET_HVAC_MODE,
     SERVICE_SET_TEMPERATURE,
 )
@@ -70,10 +67,10 @@ def device(request: pytest.FixtureRequest) -> DysonHeatingDevice:
 async def test_state(hass: HomeAssistant, device: DysonHeatingDevice):
     """Test entity state and attributes."""
     state = hass.states.get(ENTITY_ID)
-    state.state == HVAC_MODE_HEAT
+    state.state == HVACMode.HEAT
     attributes = state.attributes
     assert attributes[ATTR_HVAC_MODES] == HVAC_MODES
-    assert attributes[ATTR_HVAC_ACTION] == CURRENT_HVAC_HEAT
+    assert attributes[ATTR_HVAC_ACTION] == HVACAction.HEATING
     assert attributes[ATTR_SUPPORTED_FEATURES] & SUPPORT_FLAGS == SUPPORT_FLAGS
     assert attributes[ATTR_TEMPERATURE] == 7
     assert attributes[ATTR_MIN_TEMP] == 1
@@ -91,7 +88,7 @@ async def test_state(hass: HomeAssistant, device: DysonHeatingDevice):
     await update_device(hass, device, MessageType.STATE)
     state = hass.states.get(ENTITY_ID)
     attributes = state.attributes
-    assert attributes[ATTR_HVAC_ACTION] == CURRENT_HVAC_IDLE
+    assert attributes[ATTR_HVAC_ACTION] == HVACAction.IDLE
     assert attributes[ATTR_TEMPERATURE] == 12
     assert attributes[ATTR_CURRENT_TEMPERATURE] is None
     assert attributes[ATTR_CURRENT_HUMIDITY] == 40
@@ -99,16 +96,16 @@ async def test_state(hass: HomeAssistant, device: DysonHeatingDevice):
     device.heat_mode_is_on = False
     await update_device(hass, device, MessageType.STATE)
     state = hass.states.get(ENTITY_ID)
-    state.state == HVAC_MODE_COOL
+    state.state == HVACMode.COOL
     attributes = state.attributes
-    assert attributes[ATTR_HVAC_ACTION] == CURRENT_HVAC_COOL
+    assert attributes[ATTR_HVAC_ACTION] == HVACAction.COOLING
 
     device.is_on = False
     await update_device(hass, device, MessageType.STATE)
     state = hass.states.get(ENTITY_ID)
-    state.state == HVAC_MODE_OFF
+    state.state == HVACMode.OFF
     attributes = state.attributes
-    assert attributes[ATTR_HVAC_ACTION] == CURRENT_HVAC_OFF
+    assert attributes[ATTR_HVAC_ACTION] == HVACAction.OFF
 
 
 @pytest.mark.parametrize(
@@ -117,16 +114,16 @@ async def test_state(hass: HomeAssistant, device: DysonHeatingDevice):
         (SERVICE_SET_TEMPERATURE, {ATTR_TEMPERATURE: 5}, "set_heat_target", [278]),
         (SERVICE_SET_TEMPERATURE, {ATTR_TEMPERATURE: 0}, "set_heat_target", [274]),
         (SERVICE_SET_TEMPERATURE, {ATTR_TEMPERATURE: 312}, "set_heat_target", [310]),
-        (SERVICE_SET_HVAC_MODE, {ATTR_HVAC_MODE: HVAC_MODE_OFF}, "turn_off", []),
+        (SERVICE_SET_HVAC_MODE, {ATTR_HVAC_MODE: HVACMode.OFF}, "turn_off", []),
         (
             SERVICE_SET_HVAC_MODE,
-            {ATTR_HVAC_MODE: HVAC_MODE_HEAT},
+            {ATTR_HVAC_MODE: HVACMode.HEAT},
             "enable_heat_mode",
             [],
         ),
         (
             SERVICE_SET_HVAC_MODE,
-            {ATTR_HVAC_MODE: HVAC_MODE_COOL},
+            {ATTR_HVAC_MODE: HVACMode.COOL},
             "disable_heat_mode",
             [],
         ),
@@ -153,7 +150,7 @@ async def test_set_hvac_mode_off(hass: HomeAssistant, device: DysonHeatingDevice
     await hass.services.async_call(
         CLIMATE_DOMAIN,
         SERVICE_SET_HVAC_MODE,
-        {ATTR_ENTITY_ID: ENTITY_ID, ATTR_HVAC_MODE: HVAC_MODE_HEAT},
+        {ATTR_ENTITY_ID: ENTITY_ID, ATTR_HVAC_MODE: HVACMode.HEAT},
         blocking=True,
     )
     device.turn_on.assert_called_once_with()

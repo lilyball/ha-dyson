@@ -13,7 +13,7 @@ from libdyson.dyson_vacuum_device import DysonVacuumDevice
 import pytest
 
 from custom_components.dyson_local.binary_sensor import ICON_BIN_FULL
-from homeassistant.components.binary_sensor import DEVICE_CLASS_BATTERY_CHARGING
+from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.const import ATTR_DEVICE_CLASS, ATTR_ICON, STATE_OFF, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry
@@ -56,7 +56,7 @@ async def test_is_charging_sensor(
     state = hass.states.get(entity_id)
     assert state.name == f"{NAME} Battery Charging"
     assert state.state == STATE_OFF
-    assert state.attributes[ATTR_DEVICE_CLASS] == DEVICE_CLASS_BATTERY_CHARGING
+    assert state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.BATTERY_CHARGING
     assert er.async_get(entity_id).unique_id == f"{SERIAL}-battery_charging"
 
     device.is_charging = True
