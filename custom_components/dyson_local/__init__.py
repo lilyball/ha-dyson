@@ -81,10 +81,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = None
 
     async def _async_forward_entry_setup():
-        for component in _async_get_platforms(device):
-            hass.async_create_task(
-                hass.config_entries.async_forward_entry_setup(entry, component)
-            )
+        await hass.config_entries.async_forward_entry_setups(entry, _async_get_platforms(device))
 
     def setup_entry(host: str, is_discovery: bool = True) -> bool:
         try:
@@ -133,14 +130,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload Dyson local."""
     device = hass.data[DOMAIN][DATA_DEVICES][entry.entry_id]
-    ok = all(
-        await asyncio.gather(
-            *[
-                hass.config_entries.async_forward_entry_unload(entry, component)
-                for component in _async_get_platforms(device)
-            ]
-        )
-    )
+    ok = await hass.config_entries.async_unload_platforms(entry, _async_get_platforms(device))
     if ok:
         hass.data[DOMAIN][DATA_DEVICES].pop(entry.entry_id)
         hass.data[DOMAIN][DATA_COORDINATORS].pop(entry.entry_id)
