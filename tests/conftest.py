@@ -15,7 +15,7 @@ import requests_mock as _requests_mock
 from homeassistant import core as ha, loader, runner, util
 from homeassistant.auth.const import GROUP_ID_ADMIN, GROUP_ID_READ_ONLY
 from homeassistant.auth.models import Credentials
-from homeassistant.auth.providers import homeassistant, legacy_api_password
+from homeassistant.auth.providers import homeassistant
 from homeassistant.components.websocket_api.auth import (
     TYPE_AUTH,
     TYPE_AUTH_OK,
@@ -274,18 +274,6 @@ def hass_read_only_access_token(hass, hass_read_only_user, local_auth):
         )
     )
     return hass.auth.async_create_access_token(refresh_token)
-
-
-@pytest.fixture
-def legacy_auth(hass):
-    """Load legacy API password provider."""
-    prv = legacy_api_password.LegacyApiPasswordAuthProvider(
-        hass,
-        hass.auth._store,
-        {"type": "legacy_api_password", "api_password": "test-password"},
-    )
-    hass.auth._providers[(prv.type, prv.id)] = prv
-    return prv
 
 
 @pytest.fixture
