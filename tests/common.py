@@ -29,10 +29,6 @@ from homeassistant.auth import (
 )
 from homeassistant.auth.permissions import system_policies
 from homeassistant.components import recorder
-from homeassistant.components.device_automation import (  # noqa: F401
-    _async_get_device_automation_capabilities as async_get_device_automation_capabilities,
-    _async_get_device_automations as async_get_device_automations,
-)
 from homeassistant.components.mqtt.models import Message
 from homeassistant.config import async_process_component_config
 from homeassistant.const import (
