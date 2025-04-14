@@ -42,7 +42,6 @@ from homeassistant.const import (
     EVENT_HOMEASSISTANT_CLOSE,
     EVENT_PLATFORM_DISCOVERED,
     EVENT_STATE_CHANGED,
-    EVENT_TIME_CHANGED,
     STATE_OFF,
     STATE_ON,
 )
@@ -359,32 +358,6 @@ def async_fire_mqtt_message(hass, topic, payload, qos=0, retain=False):
 
 
 fire_mqtt_message = threadsafe_callback_factory(async_fire_mqtt_message)
-
-
-@ha.callback
-def async_fire_time_changed(hass, datetime_, fire_all=False):
-    """Fire a time changes event."""
-    hass.bus.async_fire(EVENT_TIME_CHANGED, {"now": date_util.as_utc(datetime_)})
-
-    for task in list(hass.loop._scheduled):
-        if not isinstance(task, asyncio.TimerHandle):
-            continue
-        if task.cancelled():
-            continue
-
-        mock_seconds_into_future = datetime_.timestamp() - time.time()
-        future_seconds = task.when() - hass.loop.time()
-
-        if fire_all or mock_seconds_into_future >= future_seconds:
-            with patch(
-                "homeassistant.helpers.event.time_tracker_utcnow",
-                return_value=date_util.as_utc(datetime_),
-            ):
-                task._run()
-                task.cancel()
-
-
-fire_time_changed = threadsafe_callback_factory(async_fire_time_changed)
 
 
 def fire_service_discovered(hass, service, info):
