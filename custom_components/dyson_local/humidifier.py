@@ -1,15 +1,16 @@
 """Humidifier platform for Dyson."""
 
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from libdyson import MessageType
 
 from homeassistant.components.humidifier import (
+    MODE_AUTO,
+    MODE_NORMAL,
     HumidifierDeviceClass,
     HumidifierEntity,
     HumidifierEntityFeature,
 )
-from homeassistant.components.humidifier.const import MODE_AUTO, MODE_NORMAL
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
@@ -48,7 +49,7 @@ class DysonHumidifierEntity(DysonEntity, HumidifierEntity):
         return self._device.humidification
 
     @property
-    def target_humidity(self) -> Optional[int]:
+    def target_humidity(self) -> int | None:
         """Return the target."""
         if self._device.humidification_auto_mode:
             return None

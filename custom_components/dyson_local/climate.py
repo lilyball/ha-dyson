@@ -1,11 +1,10 @@
 """Dyson climate platform."""
 
 import logging
-from typing import List, Optional
-
-from libdyson import DysonPureHotCoolLink
 
 from custom_components.dyson_local.utils import environmental_property
+from libdyson import DysonPureHotCoolLink
+
 from homeassistant.components.climate import (
     FAN_DIFFUSE,
     FAN_FOCUS,
@@ -25,7 +24,11 @@ _LOGGER = logging.getLogger(__name__)
 
 HVAC_MODES = [HVACMode.OFF, HVACMode.COOL, HVACMode.HEAT]
 FAN_MODES = [FAN_FOCUS, FAN_DIFFUSE]
-SUPPORT_FLAGS = ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TURN_OFF
+SUPPORT_FLAGS = (
+    ClimateEntityFeature.TARGET_TEMPERATURE
+    | ClimateEntityFeature.TURN_ON
+    | ClimateEntityFeature.TURN_OFF
+)
 SUPPORT_FLAGS_LINK = SUPPORT_FLAGS | ClimateEntityFeature.FAN_MODE
 
 
@@ -55,7 +58,7 @@ class DysonClimateEntity(DysonEntity, ClimateEntity):
         return HVACMode.COOL
 
     @property
-    def hvac_modes(self) -> List[str]:
+    def hvac_modes(self) -> list[str]:
         """Return the list of available hvac operation modes."""
         return HVAC_MODES
 
@@ -91,7 +94,7 @@ class DysonClimateEntity(DysonEntity, ClimateEntity):
         return self._device.temperature
 
     @property
-    def current_temperature(self) -> Optional[int]:
+    def current_temperature(self) -> int | None:
         """Return the current temperature."""
         temperature_kelvin = self._current_temperature_kelvin
         if isinstance(temperature_kelvin, str):
@@ -149,7 +152,7 @@ class DysonPureHotCoolLinkEntity(DysonClimateEntity):
         return FAN_DIFFUSE
 
     @property
-    def fan_modes(self) -> List[str]:
+    def fan_modes(self) -> list[str]:
         """Return the list of available fan modes."""
         return FAN_MODES
 

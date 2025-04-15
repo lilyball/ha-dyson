@@ -1,6 +1,6 @@
 """Sensor platform for dyson."""
 
-from typing import Callable, Union
+from collections.abc import Callable
 
 from libdyson import (
     Dyson360Eye,
@@ -12,7 +12,11 @@ from libdyson import (
 )
 from libdyson.const import MessageType
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
@@ -39,7 +43,7 @@ async def async_setup_entry(
     """Set up Dyson sensor from a config entry."""
     device = hass.data[DOMAIN][DATA_DEVICES][config_entry.entry_id]
     name = config_entry.data[CONF_NAME]
-    if isinstance(device, Dyson360Eye) or isinstance(device, Dyson360Heurist):
+    if isinstance(device, (Dyson360Eye, Dyson360Heurist)):
         entities = [DysonBatterySensor(device, name)]
     else:
         coordinator = hass.data[DOMAIN][DATA_COORDINATORS][config_entry.entry_id]
@@ -72,8 +76,9 @@ async def async_setup_entry(
                         DysonHEPAFilterLifeSensor(device, name),
                     ]
                 )
-        if isinstance(device, DysonPureHumidifyCool) or isinstance(
-            device, DysonPurifierHumidifyCoolFormaldehyde):
+        if isinstance(
+            device, (DysonPureHumidifyCool, DysonPurifierHumidifyCoolFormaldehyde)
+        ):
             entities.append(DysonNextDeepCleanSensor(device, name))
         if isinstance(device, DysonPurifierHumidifyCoolFormaldehyde):
             entities.append(DysonHCHOSensor(coordinator, device, name))
@@ -86,10 +91,6 @@ class DysonSensor(SensorEntity, DysonEntity):
     _MESSAGE_TYPE = MessageType.STATE
     _SENSOR_TYPE = None
     _SENSOR_NAME = None
-
-    def __init__(self, device: DysonDevice, name: str):
-        """Initialize the sensor."""
-        super().__init__(device, name)
 
     @property
     def sub_name(self):
@@ -109,7 +110,7 @@ class DysonSensorEnvironmental(CoordinatorEntity, DysonSensor):
 
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: DysonDevice, name: str
-    ):
+    ) -> None:
         """Initialize the environmental sensor."""
         CoordinatorEntity.__init__(self, coordinator)
         DysonSensor.__init__(self, device, name)
@@ -234,7 +235,7 @@ class DysonTemperatureSensor(DysonSensorEnvironmental):
         return self._device.temperature
 
     @property
-    def native_value(self) -> Union[str, float]:
+    def native_value(self) -> str | float:
         """Return the "native" value for this sensor.
 
         Note that as of 2021-10-28, Home Assistant does not support converting
@@ -322,7 +323,7 @@ class DysonNO2Sensor(DysonSensorEnvironmental):
         """Return the state of the sensor."""
         return self._device.nitrogen_dioxide
 
-    
+
 class DysonHCHOSensor(DysonSensorEnvironmental):
     """Dyson sensor for Formaldehyde."""
 

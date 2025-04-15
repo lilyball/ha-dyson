@@ -1,8 +1,9 @@
 """Fan platform for dyson."""
 
+from collections.abc import Callable, Mapping
 import logging
 import math
-from typing import Any, Callable, List, Mapping, Optional
+from typing import Any
 
 from libdyson import DysonPureCool, DysonPureCoolLink, MessageType
 import voluptuous as vol
@@ -51,7 +52,13 @@ SUPPORTED_PRESET_MODES = [PRESET_MODE_AUTO]
 
 SPEED_RANGE = (1, 10)
 
-COMMON_FEATURES = FanEntityFeature.OSCILLATE | FanEntityFeature.SET_SPEED | FanEntityFeature.PRESET_MODE | FanEntityFeature.TURN_OFF | FanEntityFeature.TURN_ON
+COMMON_FEATURES = (
+    FanEntityFeature.OSCILLATE
+    | FanEntityFeature.SET_SPEED
+    | FanEntityFeature.PRESET_MODE
+    | FanEntityFeature.TURN_OFF
+    | FanEntityFeature.TURN_ON
+)
 
 
 async def async_setup_entry(
@@ -99,7 +106,7 @@ class DysonFanEntity(DysonEntity, FanEntity):
         return int_states_in_range(SPEED_RANGE)
 
     @property
-    def percentage(self) -> Optional[int]:
+    def percentage(self) -> int | None:
         """Return the current speed percentage."""
         if self._device.speed is None or self._device.auto_mode:
             return None
@@ -118,12 +125,12 @@ class DysonFanEntity(DysonEntity, FanEntity):
         self._device.disable_auto_mode()
 
     @property
-    def preset_modes(self) -> List[str]:
+    def preset_modes(self) -> list[str]:
         """Return the preset modes supported."""
         return SUPPORTED_PRESET_MODES
 
     @property
-    def preset_mode(self) -> Optional[str]:
+    def preset_mode(self) -> str | None:
         """Return the current selected preset mode."""
         if self._device.auto_mode:
             return PRESET_MODE_AUTO
@@ -148,8 +155,8 @@ class DysonFanEntity(DysonEntity, FanEntity):
 
     def turn_on(
         self,
-        percentage: Optional[int] = None,
-        preset_mode: Optional[str] = None,
+        percentage: int | None = None,
+        preset_mode: str | None = None,
         **kwargs,
     ) -> None:
         """Turn on the fan."""
@@ -199,8 +206,7 @@ class DysonPureCoolEntity(DysonFanEntity):
         """Return the current airflow direction."""
         if self._device.front_airflow:
             return DIRECTION_FORWARD
-        else:
-            return DIRECTION_REVERSE
+        return DIRECTION_REVERSE
 
     def set_direction(self, direction: str) -> None:
         """Configure the airflow direction."""
@@ -253,8 +259,7 @@ class DysonPureHumidifyCoolEntity(DysonFanEntity):
         """Return the current airflow direction."""
         if self._device.front_airflow:
             return DIRECTION_FORWARD
-        else:
-            return DIRECTION_REVERSE
+        return DIRECTION_REVERSE
 
     def set_direction(self, direction: str) -> None:
         """Configure the airflow direction."""

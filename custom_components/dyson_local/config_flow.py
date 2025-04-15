@@ -2,7 +2,6 @@
 
 import logging
 import threading
-from typing import Optional
 
 from libdyson import DEVICE_TYPE_NAMES, get_device, get_mqtt_info_from_wifi_info
 from libdyson.cloud import DysonDeviceInfo
@@ -41,14 +40,14 @@ class DysonLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the config flow."""
         self._device_info = None
 
-    async def async_step_user(self, info: Optional[dict] = None):
+    async def async_step_user(self, user_input: dict | None = None):
         """Handle step initialized by user."""
-        if info is not None:
-            if info[CONF_METHOD] == "wifi":
+        if user_input is not None:
+            if user_input[CONF_METHOD] == "wifi":
                 return await self.async_step_wifi()
             return await self.async_step_manual()
 
@@ -57,7 +56,7 @@ class DysonLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({vol.Required(CONF_METHOD): vol.In(SETUP_METHODS)}),
         )
 
-    async def async_step_wifi(self, info: Optional[dict] = None):
+    async def async_step_wifi(self, info: dict | None = None):
         """Handle step to setup using device WiFi information."""
         errors = {}
         if info is not None:
@@ -108,7 +107,7 @@ class DysonLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_manual(self, info: Optional[dict] = None):
+    async def async_step_manual(self, info: dict | None = None):
         """Handle step to setup manually."""
         errors = {}
         if info is not None:
@@ -159,7 +158,7 @@ class DysonLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_host(self, info: Optional[dict] = None):
+    async def async_step_host(self, info: dict | None = None):
         """Handle step to set host."""
         errors = {}
         if info is not None:
@@ -190,18 +189,18 @@ class DysonLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_discovery(self, info: DysonDeviceInfo):
+    async def async_step_discovery(self, discovery_info: DysonDeviceInfo):
         """Handle step initialized by dyson_cloud discovery."""
         for entry in self._async_current_entries():
-            if entry.unique_id == info.serial:
+            if entry.unique_id == discovery_info.serial:
                 return self.async_abort(reason="already_configured")
-        await self.async_set_unique_id(info.serial)
+        await self.async_set_unique_id(discovery_info.serial)
         self._abort_if_unique_id_configured()
         self.context["title_placeholders"] = {
-            CONF_NAME: info.name,
-            CONF_SERIAL: info.serial,
+            CONF_NAME: discovery_info.name,
+            CONF_SERIAL: discovery_info.serial,
         }
-        self._device_info = info
+        self._device_info = discovery_info
         return await self.async_step_host()
 
     async def _async_get_entry_data(
@@ -210,8 +209,8 @@ class DysonLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         credential: str,
         device_type: str,
         name: str,
-        host: Optional[str] = None,
-    ) -> Optional[str]:
+        host: str | None = None,
+    ) -> str | None:
         """Try connect and return config entry data."""
         await self._async_try_connect(serial, credential, device_type, host)
         return {
@@ -227,7 +226,7 @@ class DysonLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         serial: str,
         credential: str,
         device_type: str,
-        host: Optional[str] = None,
+        host: str | None = None,
     ) -> None:
         """Try connect."""
         device = get_device(serial, credential, device_type)
@@ -256,11 +255,11 @@ class DysonLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Try connect to the device
         try:
             device.connect(host)
-        except DysonInvalidCredential:
-            raise InvalidAuth
+        except DysonInvalidCredential as err:
+            raise InvalidAuth from err
         except DysonException as err:
             _LOGGER.debug("Failed to connect to device: %s", err)
-            raise CannotConnect
+            raise CannotConnect from err
 
 
 class CannotConnect(HomeAssistantError):

@@ -1,12 +1,12 @@
 """Binary sensor platform for dyson."""
 
-from typing import Callable
+from collections.abc import Callable
 
 from libdyson import Dyson360Eye, Dyson360Heurist, DysonPureHotCoolLink
 
 from homeassistant.components.binary_sensor import (
-    BinarySensorEntity,
     BinarySensorDeviceClass,
+    BinarySensorEntity,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME

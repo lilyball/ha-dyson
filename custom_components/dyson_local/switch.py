@@ -1,6 +1,6 @@
 """Switch platform for dyson."""
 
-from typing import Callable
+from collections.abc import Callable
 
 from libdyson import DysonPureHotCoolLink
 

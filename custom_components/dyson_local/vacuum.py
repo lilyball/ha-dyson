@@ -1,6 +1,7 @@
 """Vacuum platform for Dyson."""
 
-from typing import Any, Callable, List, Mapping
+from collections.abc import Callable, Mapping
+from typing import Any
 
 from libdyson import (
     Dyson360Eye,
@@ -188,7 +189,7 @@ class Dyson360EyeEntity(DysonVacuumEntity):
         return EYE_POWER_MODE_ENUM_TO_STR[self._device.power_mode]
 
     @property
-    def fan_speed_list(self) -> List[str]:
+    def fan_speed_list(self) -> list[str]:
         """Get the list of available fan speed steps of the vacuum cleaner."""
         return list(EYE_POWER_MODE_STR_TO_ENUM.keys())
 
@@ -213,7 +214,7 @@ class Dyson360HeuristEntity(DysonVacuumEntity):
         return HEURIST_POWER_MODE_ENUM_TO_STR[self._device.current_power_mode]
 
     @property
-    def fan_speed_list(self) -> List[str]:
+    def fan_speed_list(self) -> list[str]:
         """Get the list of available fan speed steps of the vacuum cleaner."""
         return list(HEURIST_POWER_MODE_STR_TO_ENUM.keys())
 
